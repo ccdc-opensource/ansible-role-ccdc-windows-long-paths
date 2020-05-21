@@ -1,0 +1,7 @@
+---
+- hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Activate long paths
+      include_role:
+        name: windows-long-paths

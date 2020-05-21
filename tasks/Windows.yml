@@ -1,0 +1,20 @@
+---
+- name: Create registry path CurrentControlSet\Control\FileSystem
+  win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem
+  become: yes
+
+- name: Add or update LongPathsEnabled
+  win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem
+    name: LongPathsEnabled
+    data: 1
+    type: dword
+  register: win_long_paths_registry_fix
+  become: yes
+
+- name: Reboot if LongPathsEnabled changed
+  win_reboot:
+    post_reboot_delay: 30
+  when: win_long_paths_registry_fix.data_changed
+    

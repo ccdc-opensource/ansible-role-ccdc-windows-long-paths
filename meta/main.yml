@@ -1,0 +1,16 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: cbantaloukas@ccdc.cam.ac.uk
+  description: Allow paths longer than 260 characters on windows
+  company: "CCDC"
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.9
+  platforms:
+    - name: Windows
+      versions:
+        - 2016
+        - 2019
+  galaxy_tags:
+    - system

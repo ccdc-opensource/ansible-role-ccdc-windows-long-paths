@@ -1,0 +1,59 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+variables = %w{ARTIFACTORY_API_KEY ATLAS_TOKEN VAGRANT_SERVER_URL}
+missing = variables.find_all { |v| ENV[v] == nil }
+unless missing.empty?
+  puts "FATAL: The following environment variables are missing and are needed to run this script: #{missing.join(', ')}."
+  puts "See https://confluence.ccdc.cam.ac.uk/x/oK7I for instructions on obtaining an artifactory API key and atlas token"
+  puts "Make sure export VAGRANT_SERVER_URL='https://artifactory.ccdc.cam.ac.uk/artifactory/api/vagrant/ccdc-vagrant-repo' is present in your .bashrc"
+  exit
+end
+
+Vagrant.configure("2") do |config|
+    config.vm.define "win-long-paths-test-windows2019"
+    config.vm.hostname = "win-long-paths-test-windows2019"
+
+    config.vm.box = "ccdc-basebox/windows-2019"
+    # Workaround for bug in artifactory not handling / in package names
+    config.vm.box_url = "https://artifactory.ccdc.cam.ac.uk/artifactory/api/vagrant/ccdc-vagrant-repo/ccdc-basebox%2Fwindows-2019"
+
+    config.vm.provider :virtualbox do |v, override|
+        v.gui = true
+        v.customize ["modifyvm", :id, "--memory", 4096]
+        v.customize ["modifyvm", :id, "--cpus", 4]
+        v.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
+        v.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
+    end
+    config.vm.provider :vmware_fusion do |v, override|
+        v.gui = true
+        v.vmx["memsize"] = "4096"
+        v.vmx["numvcpus"] = "4"
+        v.enable_vmrun_ip_lookup = false
+    end
+
+    # Temporary workaround to Python bug in macOS High Sierra which can break Ansible
+    # https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
+    # This is an ugly hack tightly bound to the internals of Vagrant.Util.Subprocess, specifically
+    # the jailbreak method, self-described as "quite possibly, the saddest function in all of Vagrant."
+    # That in turn makes this assignment the saddest line in all of Vagrantfiles.
+    ENV["VAGRANT_OLD_ENV_OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
+
+    config.vm.provision "ansible" do |ansible|
+      # Set up WinRM for Ansible
+      ansible.extra_vars = {
+          ansible_connection: 'winrm',
+          ansible_winrm_server_cert_validation: 'ignore',
+          ansible_winrm_transport: 'ntlm',
+          ansible_shell_type: 'powershell',
+          ansible_shell_executable: 'None',
+          ansible_become_method: 'runas',
+          ansible_become_user: '.\vagrant',
+          ansible_become_password: 'vagrant',
+      }
+
+      ansible.verbose = "v"
+      ansible.playbook = "./playbook.yml"
+      ansible.galaxy_roles_path = "../../" 
+    end
+end
