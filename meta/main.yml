@@ -2,9 +2,10 @@
 dependencies: []
 
 galaxy_info:
-  author: cbantaloukas@ccdc.cam.ac.uk
+role_name: windows_long_paths
+  author: rockdreamer
   description: Allow paths longer than 260 characters on windows
-  company: "CCDC"
+  company: The Cambridge Crystallographic Data Centre
   license: "license (BSD, MIT)"
   min_ansible_version: 2.9
   platforms:

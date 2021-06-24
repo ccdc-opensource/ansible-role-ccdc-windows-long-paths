@@ -18,7 +18,7 @@ None.
 
     - hosts: all
       roles:
-        - windows-long-paths
+        - ccdc.windows_long_paths
 
 ## License
 
