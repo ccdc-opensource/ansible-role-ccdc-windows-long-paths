@@ -3,6 +3,7 @@ dependencies: []
 
 galaxy_info:
   role_name: windows_long_paths
+  namespace: ccdc
   author: rockdreamer
   description: Allow paths longer than 260 characters on windows
   company: The Cambridge Crystallographic Data Centre
