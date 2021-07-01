@@ -4,4 +4,4 @@
   tasks:
     - name: Activate long paths
       include_role:
-        name: windows-long-paths
+        name: ccdc.windows_long_paths
